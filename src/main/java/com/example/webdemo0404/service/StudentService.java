@@ -5,8 +5,12 @@ import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,13 +22,18 @@ public class StudentService {
 
     @PostConstruct
     public void init() {
-        students = new ArrayList<>(List.of(
-                new Student(1, "John", 20, 75),
-                new Student(2, "Bill", 21, 99),
-                new Student(3, "Kate", 24, 95),
-                new Student(4, "Donald", 18, 76),
-                new Student(5, "Jane", 20, 85)
-        ));
+        try (BufferedReader reader = Files.newBufferedReader(Path.of("students.txt"))) {
+            students = new ArrayList<>(reader.lines().map(line -> {
+                String[] s = line.split(";");
+                int id = Integer.parseInt(s[0]);
+                String name = s[1];
+                int age = Integer.parseInt(s[2]);
+                double rating = Double.parseDouble(s[3]);
+                return new Student(id, name, age, rating);
+            }).toList());
+        } catch (IOException e) {
+            students = new ArrayList<>();
+        }
     }
 
     public void add(Student student) {

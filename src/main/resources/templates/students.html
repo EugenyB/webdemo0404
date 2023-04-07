@@ -7,14 +7,14 @@
 </head>
 <body>
 <h1 th:text="Students"></h1>
-<table class="table table-striped table-sm table-hover">
+<table class="table table-striped table-sm table-hover table-bordered">
     <thead class="table-dark">
     <tr>
         <th>#</th>
         <th>Name</th>
         <th>age</th>
         <th>rating</th>
-        <th></th>
+        <th>X</th>
     </tr>
     </thead>
     <tbody>
@@ -24,11 +24,48 @@
         <td th:text="${s.age}"></td>
         <td th:text="${s.rating}"></td>
         <td>
-            <a th:href="@{/delete_student(id=${s.id})}" class="btn btn-danger btn-sm">delete</a>
+            <!--            <a th:href="@{/delete_student(id=${s.id})}" class="btn btn-danger btn-sm">delete</a>-->
+            <a class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+               data-bs-target="#myconfirm"
+               th:attr="data-bs-link=@{/delete_student(id=${s.id})}, data-bs-text=${s.name}, data-bs-id=${s.id}">delete</a>
         </td>
     </tr>
     </tbody>
 </table>
+<div class="modal fade" id="myconfirm" data-bs-backdrop="static" data-bs-keyboard="false"
+     tabindex="-1" aria-labelledby="staticWarningLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticWarningLabel">Warning</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete student?<br/>
+                If you click <b>Delete</b>, this action <i>cannot be undone</i>.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <a class="btn btn-danger delete-button">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var myConfirmModal = document.getElementById('myconfirm')
+    myConfirmModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget
+        var link = button.getAttribute('data-bs-link')
+        var sid = button.getAttribute('data-bs-id')
+        var text = button.getAttribute('data-bs-text')
+        var modalTitle = myConfirmModal.querySelector('.modal-title')
+        modalTitle.textContent = 'Deleting student: ' + text + ' (' + sid + ')'
+        var deleteButton = myConfirmModal.querySelector('.delete-button')
+        deleteButton.setAttribute("href", link)
+    })
+</script>
 <form action="add_student" method="post">
     <input type="number" name="student_id" placeholder="id">
     <input type="text" name="student_name" placeholder="Name">
